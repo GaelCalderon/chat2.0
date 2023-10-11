@@ -16,13 +16,13 @@ app.listen(app.get('port'),() => {
     console.log('El servidor esta funcionando en el puerto', app.get('port')); 
 }
 );
-mongoose.connect('mongodb+srv://node:DPkwUaILbGg558D5@cluster0.3wg4vdv.mongodb.net/chat2?retryWrites=true&w=majority')
-    .then(() => {
-        console.log('Conexión a la base de datos establecida');
-    })
-    .catch((err) => {
-        console.error('Error al conectar a la base de datos:', err);
-    })
+mongoose.connect('mongodb+srv://tbotello73:bdtbote@cluster0.fbmoru0.mongodb.net/Chat?retryWrites=true&w=majority')
+.then(() => {
+    console.log('Conexión a la base de datos establecida');
+})
+.catch((err) => {
+    console.error('Error al conectar a la base de datos:', err);
+});
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');

@@ -1,82 +1,118 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión</title>
-    <style>
+    <title>Inicio</title>
+     <style>
         body {
             font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
         }
-
         .container {
-            width: 300px;
-            text-align: center;
+            max-width: 400px; /* Ajusta el ancho máximo del contenedor */
+            margin: 0 auto;
+            padding: 50px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #8939e6e8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
         }
 
-        .form-group {
-            margin-bottom: 20px;
+        .btn-primary:hover {
+            background-color: #910cdf;
         }
 
-        .form-group input,
-        .form-group button {
-            width: calc(100% - 20px);
-            padding: 10px;
-            font-size: 16px;
+        /* Estilo para el input */
+        #mensaje {
+            padding: 6px;
+            width: calc(100% - 10px); /* Ajusta el ancho del textarea */
+            height: 60px; /* Ajusta la altura inicial del textarea */
             border: 1px solid #ccc;
             border-radius: 5px;
         }
 
-        .form-group button {
-            background-color: #6444f1;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin-top: 10px;
+        #mensaje:focus {
+            outline: none;
+            border-color: #3498db;
         }
 
-        .form-group button:hover {
-            background-color: #523bc2;
-        }
-
-        .register-link {
-            text-decoration: none;
-            color: #6444f1;
-            font-weight: bold;
-            font-size: 16px;
-            margin-top: 10px;
-            display: block;
-        }
-
-        .register-link:hover {
-            color: #523bc2;
+        #chatTextArea {
+            height: 400px; /* Ajusta la altura del área de chat */
+            padding: 10px;
+            width: 70%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow-y: scroll; /* Agrega una barra de desplazamiento vertical si es necesario */
         }
     </style>
 </head>
-
 <body>
     <div class="container">
-        <h2>Iniciar Sesión</h2>
-        <form action="/login" method="post">
-            <div class="form-group">
-                <input type="email" id="email" name="email" placeholder="Correo Electrónico" required>
+            <div class="col-md-9">
+                <form action="/send" method="post">
+                    <div class="card p-3">
+                        <h1 class="mb-3">Chat</h1>
+                        <textarea id="chatTextArea" class="form-control mb-3" rows="10" readonly>
+                            <% if (datos) { %>
+                                <% for (const mensaje of datos) { %>
+                                    <%= mensaje.nombre %>: <%= mensaje.mensaje %> 
+                                <% } %>
+                            <% } %>
+                        </textarea>
+                        <input type="hidden" id="nombre" name="nombre" value="<%= nombreUsuario %>" />
+                        <input type="text" id="mensaje" name="mensaje" class="form-control mb-3" placeholder="Mensaje" aria-label="Mensaje" required>
+                        <button class="btn btn-primary">Enviar</button>
+                        <a href="/logout" class="btn btn-danger">Cerrar Sesión</a> 
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <input type="password" id="password" name="password" placeholder="Contraseña" required>
-            </div>
-            <div class="form-group">
-                <button type="submit">Iniciar Sesión</button>
-                <a href="/registro" class="register-link">Registrar</a>
-            </div>
-        </form>
+        </div>
     </div>
-</body>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const eventSource = new EventSource("/sse");
+
+        const textarea = document.getElementById('chatTextArea');
+        eventSource.onopen = (event) => {
+            console.log("SSE connection established");
+        };
+
+        // Resto del código para manejar los eventos SSE
+
+        eventSource.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            textarea.value += `${data.nombre}: ${data.mensaje}\n`;
+        };
+
+
+        // Desplazar hacia abajo automáticamente después de enviar un mensaje
+        $('#chatForm').submit(function(event) {
+            event.preventDefault(); // Prevenir el envío del formulario por defecto
+
+            // Tu código para enviar el mensaje aquí
+
+            // Desplazar hacia abajo el área de chat
+            var chatTextArea = $('#chatTextArea');
+            chatTextArea.val(chatTextArea.val() + $('#nombre').val() + ': ' + $('#mensaje').val() + '\n');
+            chatTextArea.scrollTop(chatTextArea[0].scrollHeight);
+
+            // Limpiar el campo de mensaje
+            $('#mensaje').val('');
+        });
+        
+        // Desplazar hacia abajo automáticamente al cargar la página
+        $(document).ready(function() {
+            var chatTextArea = $('#chatTextArea');
+            chatTextArea.scrollTop(chatTextArea[0].scrollHeight);
+        });
+    </script>
+</body>
 </html>
