@@ -3,9 +3,20 @@ const router = express.Router();
 const { chatModel, cuentaModel } = require('../models/chat');
 const session = require('express-session');
 const jwt = require("jsonwebtoken");
+const net = require("net")
 
 const sseClients = [];
 
+const servidor ={
+  port:5000, 
+  host:"localhost",
+
+};
+
+const client = net.createConnection(servidor);
+client.on ("connect", ()=>{
+  console.log("Conexion hecha")
+})
 
 // Configurar express-session
 router.use(
@@ -135,7 +146,7 @@ router.post('/send', async (req, res) => {
     const { nombre, mensaje } = req.body;
 
     // Validación de datos 
-    if (!nombre || !mensaje) {
+    if (!nombre || !mensaje) {  
       return res.status(400).json({ error: 'Nombre y mensaje son obligatorios' });
     }
 
@@ -151,7 +162,7 @@ router.post('/send', async (req, res) => {
     await nuevoMensaje.save();
 
     sseClients.forEach((client) => {
-      client.write(`data: ${JSON.stringify({ user: req.session.usuarioAutenticado, mensaje })}\n\n`);
+      client.write(`data: ${JSON.stringify({ user: req.session.nombreUsuario, mensaje })}\n\n`);
     });
 
 

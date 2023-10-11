@@ -89,7 +89,7 @@
 
         eventSource.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            textarea.value += `${data.nombre}: ${data.mensaje}\n`;
+            textarea.value += `${data.user}: ${data.mensaje}\n`;
         };
 
 
